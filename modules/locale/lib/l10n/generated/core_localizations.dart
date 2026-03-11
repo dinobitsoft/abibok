@@ -127,7 +127,7 @@ abstract class CoreLocalizations {
   /// Add new item button text
   ///
   /// In en, this message translates to:
-  /// **'Add new'**
+  /// **'Add New'**
   String get addNew;
 
   /// Partial validation message indicating minimum requirement
@@ -178,10 +178,10 @@ abstract class CoreLocalizations {
   /// **'Cannot load rest requests!'**
   String get cannotLoadRestRequests;
 
-  /// Chat menu item
+  /// Chat header with number symbol
   ///
   /// In en, this message translates to:
-  /// **'Chat'**
+  /// **'Chat #'**
   String get chat;
 
   /// Chat server input label
@@ -376,10 +376,10 @@ abstract class CoreLocalizations {
   /// **'12/25'**
   String get expiryDateHint;
 
-  /// Field required validation error message
+  /// Generic required field error message
   ///
   /// In en, this message translates to:
-  /// **'Field is required!'**
+  /// **'Field required'**
   String get fieldRequired;
 
   /// First name input label
@@ -496,10 +496,10 @@ abstract class CoreLocalizations {
   /// **'Name on card'**
   String get nameOnCard;
 
-  /// No answer text
+  /// Partial text for 'no items found' messages
   ///
   /// In en, this message translates to:
-  /// **'No'**
+  /// **'no '**
   String get no;
 
   /// No access error message
@@ -754,7 +754,7 @@ abstract class CoreLocalizations {
   /// **'Slow hit'**
   String get slowHit;
 
-  /// Status label
+  /// Status field label
   ///
   /// In en, this message translates to:
   /// **'Status'**
@@ -841,7 +841,7 @@ abstract class CoreLocalizations {
   /// Update button text
   ///
   /// In en, this message translates to:
-  /// **'update'**
+  /// **'Update'**
   String get update;
 
   /// User label
@@ -1371,6 +1371,186 @@ abstract class CoreLocalizations {
   /// In en, this message translates to:
   /// **'Password successfully changed for user: {username}'**
   String passwordChangeSuccess(String username);
+
+  /// Error message when chat is not active
+  ///
+  /// In en, this message translates to:
+  /// **'Chat not active!'**
+  String get chatNotActive;
+
+  /// Placeholder text for message input field
+  ///
+  /// In en, this message translates to:
+  /// **'Message text..'**
+  String get messageText;
+
+  /// Send button text
+  ///
+  /// In en, this message translates to:
+  /// **'Send'**
+  String get send;
+
+  /// Button text to add chat partner
+  ///
+  /// In en, this message translates to:
+  /// **'Add partner'**
+  String get addPartner;
+
+  /// Button text for creating new chat
+  ///
+  /// In en, this message translates to:
+  /// **'New'**
+  String get newChat;
+
+  /// Instruction to select a chat partner
+  ///
+  /// In en, this message translates to:
+  /// **'Select chat partner'**
+  String get selectChatPartner;
+
+  /// Label for chat partner field
+  ///
+  /// In en, this message translates to:
+  /// **'Chat partner'**
+  String get chatPartner;
+
+  /// Label for room
+  ///
+  /// In en, this message translates to:
+  /// **'Room'**
+  String get room;
+
+  /// Chat room label or header
+  ///
+  /// In en, this message translates to:
+  /// **'ChatRoom'**
+  String get chatRoom;
+
+  /// Section header for chat users and groups
+  ///
+  /// In en, this message translates to:
+  /// **'Chat users and groups'**
+  String get chatUsersAndGroups;
+
+  /// Partial text for 'items found' messages
+  ///
+  /// In en, this message translates to:
+  /// **'s found!'**
+  String get sFound;
+
+  /// Placeholder text for name search field
+  ///
+  /// In en, this message translates to:
+  /// **'search in name ..'**
+  String get searchInName;
+
+  /// Search button text
+  ///
+  /// In en, this message translates to:
+  /// **'Search'**
+  String get search;
+
+  /// Name field label
+  ///
+  /// In en, this message translates to:
+  /// **'Name'**
+  String get name;
+
+  /// Abbreviation for Private
+  ///
+  /// In en, this message translates to:
+  /// **'Pvt.'**
+  String get pvt;
+
+  /// Abbreviation for number of members
+  ///
+  /// In en, this message translates to:
+  /// **'#Mem.'**
+  String get nroMembers;
+
+  /// Status message when all messages are read
+  ///
+  /// In en, this message translates to:
+  /// **'All messages read'**
+  String get allMessagesRead;
+
+  /// Label for unread messages count
+  ///
+  /// In en, this message translates to:
+  /// **'unread messages'**
+  String get unreadMessages;
+
+  /// BLoC message: Chat room updated successfully
+  ///
+  /// In en, this message translates to:
+  /// **'Chat room updated successfully'**
+  String get chatRoomUpdateSuccess;
+
+  /// BLoC message: Failed to update chat room
+  ///
+  /// In en, this message translates to:
+  /// **'Failed to update chat room'**
+  String get chatRoomUpdateFailure;
+
+  /// BLoC message: Chat room deleted successfully
+  ///
+  /// In en, this message translates to:
+  /// **'Chat room deleted successfully'**
+  String get chatRoomDeleteSuccess;
+
+  /// BLoC message: Failed to delete chat room
+  ///
+  /// In en, this message translates to:
+  /// **'Failed to delete chat room'**
+  String get chatRoomDeleteFailure;
+
+  /// BLoC message: Chat room added successfully
+  ///
+  /// In en, this message translates to:
+  /// **'Chat room added successfully'**
+  String get chatRoomAddSuccess;
+
+  /// BLoC message: Failed to add chat room
+  ///
+  /// In en, this message translates to:
+  /// **'Failed to add chat room'**
+  String get chatRoomAddFailure;
+
+  /// BLoC message: Failed to fetch chat rooms
+  ///
+  /// In en, this message translates to:
+  /// **'Failed to fetch chat rooms'**
+  String get chatRoomFetchFailure;
+
+  /// BLoC message: Message sent successfully
+  ///
+  /// In en, this message translates to:
+  /// **'Message sent successfully'**
+  String get chatMessageSendSuccess;
+
+  /// BLoC message: Failed to send message
+  ///
+  /// In en, this message translates to:
+  /// **'Failed to send message'**
+  String get chatMessageSendFailure;
+
+  /// BLoC message: Message deleted successfully
+  ///
+  /// In en, this message translates to:
+  /// **'Message deleted successfully'**
+  String get chatMessageDeleteSuccess;
+
+  /// BLoC message: Failed to delete message
+  ///
+  /// In en, this message translates to:
+  /// **'Failed to delete message'**
+  String get chatMessageDeleteFailure;
+
+  /// BLoC message: Failed to fetch messages
+  ///
+  /// In en, this message translates to:
+  /// **'Failed to fetch messages'**
+  String get chatMessageFetchFailure;
 }
 
 class _CoreLocalizationsDelegate
