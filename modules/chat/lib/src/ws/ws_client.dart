@@ -13,7 +13,7 @@ import '../models/models.dart';
 class WsClient {
   late WebSocketChannel channel;
   late String wsUrl;
-  late StreamController streamController;
+  final StreamController streamController = StreamController.broadcast();
 
   var logger = Logger(
     filter: null, // Use the default LogFilter (-> only log in debug mode)
@@ -26,9 +26,9 @@ class WsClient {
 
   WsClient(String path) {
     if (kReleaseMode) {
-      wsUrl = GlobalConfiguration().get("chatUrl");
+      wsUrl = GlobalConfiguration().get("chatUrl") ?? '';
     } else {
-      wsUrl = GlobalConfiguration().get("chatUrlDebug");
+      wsUrl = GlobalConfiguration().get("chatUrlDebug") ?? '';
       if (wsUrl.isEmpty) {
         if (kIsWeb || Platform.isIOS || Platform.isMacOS || Platform.isLinux) {
           wsUrl = 'ws://localhost:8080/$path';
@@ -46,6 +46,9 @@ class WsClient {
       channel = WebSocketChannel.connect(
         Uri.parse("$wsUrl?apiKey=$apiKey&userId=$userId"),
       );
+      channel.stream.listen((data) {
+        streamController.add(data);
+      });
 
       //await channel.ready;
     } catch (error) {
@@ -57,7 +60,6 @@ class WsClient {
         logger.e('Websocket error: ${error.message}');
       }
     }
-    streamController = StreamController.broadcast()..addStream(channel.stream);
   }
 
   void send(Object message) {
@@ -77,7 +79,12 @@ class WsClient {
   }
 
   void close() {
-    channel.sink.close(status.normalClosure);
-    streamController.close();
+    try {
+      channel.sink.close(status.normalClosure);
+    } catch (_) {}
+
+    if (!streamController.isClosed) {
+      streamController.close();
+    }
   }
 }

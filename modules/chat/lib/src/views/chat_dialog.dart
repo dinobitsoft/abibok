@@ -25,7 +25,7 @@ class ChatState extends State<ChatDialog> {
   final _scrollController = ScrollController();
   final double _scrollThreshold = 200.0;
   late ChatMessageBloc _chatMessageBloc;
-  late Authenticate authenticate;
+  Authenticate? authenticate;
   late WsClient? chat;
   int limit = 20;
   late bool search;
@@ -36,6 +36,7 @@ class ChatState extends State<ChatDialog> {
 
   @override
   void initState() {
+    super.initState();
     _scrollController.addListener(_onScroll);
     _chatMessageBloc = context.read<ChatMessageBloc>()
       ..add(
@@ -45,8 +46,11 @@ class ChatState extends State<ChatDialog> {
           limit: limit,
         ),
       );
-    Timer(const Duration(seconds: 1), () => _scrollController.jumpTo(0.0));
-    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (_scrollController.hasClients) {
+        _scrollController.jumpTo(0.0);
+      }
+    });
   }
 
   @override
@@ -127,7 +131,8 @@ class ChatState extends State<ChatDialog> {
                   ),
                   child: Align(
                     alignment:
-                        (messages[index].fromUserId == authenticate.user!.userId
+                        (messages[index].fromUserId ==
+                            authenticate?.user!.userId
                         ? Alignment.topRight
                         : Alignment.topLeft),
                     child: Container(
@@ -135,7 +140,7 @@ class ChatState extends State<ChatDialog> {
                         borderRadius: BorderRadius.circular(20),
                         color:
                             (messages[index].fromUserId ==
-                                authenticate.user!.userId
+                                authenticate?.user!.userId
                             ? theme.primaryColor
                             : theme.secondaryHeaderColor),
                       ),
@@ -174,8 +179,8 @@ class ChatState extends State<ChatDialog> {
                     : _chatMessageBloc.add(
                         ChatMessageSendWs(
                           ChatMessage(
-                            fromUserId: authenticate.user!.userId!,
-                            fromUserFullName: authenticate.user!.fullName!,
+                            fromUserId: authenticate?.user!.userId!,
+                            fromUserFullName: authenticate?.user!.fullName!,
                             chatRoom: ChatRoom(
                               chatRoomId: widget.chatRoom.chatRoomId,
                               chatRoomName: widget.chatRoom.chatRoomName,
