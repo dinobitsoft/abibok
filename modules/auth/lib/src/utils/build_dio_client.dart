@@ -1,5 +1,4 @@
 import 'dart:io' show Platform;
-
 import 'package:dio/dio.dart';
 import 'package:flutter/foundation.dart';
 import 'package:global_configuration/global_configuration.dart';
@@ -19,8 +18,8 @@ Future<Dio> buildDioClient({
     // ignore: empty_catches
   } catch (e) {}
 
-  String databaseUrl = GlobalConfiguration().get('databaseUrl');
-  String databaseUrlDebug = GlobalConfiguration().get('databaseUrlDebug');
+  String? databaseUrl = GlobalConfiguration().get('databaseUrl');
+  String? databaseUrlDebug = GlobalConfiguration().get('databaseUrlDebug');
 
   // Get timeout values from configuration
   int connectTimeoutSeconds;
@@ -41,7 +40,7 @@ Future<Dio> buildDioClient({
   // Use provided timeout duration if it's longer than config, otherwise use config
   final configReceiveTimeout = Duration(seconds: receiveTimeoutSeconds);
   final effectiveReceiveTimeout =
-  timeout.inSeconds > configReceiveTimeout.inSeconds
+      timeout.inSeconds > configReceiveTimeout.inSeconds
       ? timeout
       : configReceiveTimeout;
 
@@ -50,8 +49,8 @@ Future<Dio> buildDioClient({
       baseUrl: overrideUrl != null
           ? '$overrideUrl/'
           : kReleaseMode
-          ? '$databaseUrl/'
-          : databaseUrlDebug.isNotEmpty
+          ? '${databaseUrl ?? "http://10.0.2.2:8080"}/'
+          : (databaseUrlDebug != null && databaseUrlDebug.isNotEmpty)
           ? '$databaseUrlDebug/'
           : android == true
           ? 'http://10.0.2.2:8080/'
@@ -95,9 +94,9 @@ class KeyInterceptor extends Interceptor {
   final SharedPreferences prefs;
   @override
   void onRequest(
-      RequestOptions options,
-      RequestInterceptorHandler handler,
-      ) async {
+    RequestOptions options,
+    RequestInterceptorHandler handler,
+  ) async {
     if (options.extra['noApiKey'] == null) {
       options.headers['api_key'] = prefs.getString('apiKey');
 
@@ -107,6 +106,8 @@ class KeyInterceptor extends Interceptor {
         );
       }
     }
+    print("➡️ REQUEST: ${options.uri}");
+    print("HEADERS: ${options.headers}");
     return super.onRequest(options, handler);
   }
 
@@ -118,7 +119,8 @@ class KeyInterceptor extends Interceptor {
     );
 
     //  response.headers.removeAll('set-cookie');
-
+    print("✅ RESPONSE: ${response.statusCode}");
+    print("BODY: ${response.data}");
     return super.onResponse(response, handler);
   }
 }

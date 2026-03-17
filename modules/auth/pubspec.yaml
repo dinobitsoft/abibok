@@ -42,6 +42,7 @@ dependencies:
     path: ../widgets
   flutter:
     sdk: flutter
+  lib: ^0.2.1
 
 dev_dependencies:
   retrofit_generator: ^10.0.1

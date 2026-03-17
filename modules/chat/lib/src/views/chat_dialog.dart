@@ -25,7 +25,7 @@ class ChatState extends State<ChatDialog> {
   final _scrollController = ScrollController();
   final double _scrollThreshold = 200.0;
   late ChatMessageBloc _chatMessageBloc;
-  Authenticate? authenticate;
+  late Authenticate authenticate;
   late WsClient? chat;
   int limit = 20;
   late bool search;
@@ -131,8 +131,7 @@ class ChatState extends State<ChatDialog> {
                   ),
                   child: Align(
                     alignment:
-                        (messages[index].fromUserId ==
-                            authenticate?.user!.userId
+                        (messages[index].fromUserId == authenticate.user!.userId
                         ? Alignment.topRight
                         : Alignment.topLeft),
                     child: Container(
@@ -140,7 +139,7 @@ class ChatState extends State<ChatDialog> {
                         borderRadius: BorderRadius.circular(20),
                         color:
                             (messages[index].fromUserId ==
-                                authenticate?.user!.userId
+                                authenticate.user!.userId
                             ? theme.primaryColor
                             : theme.secondaryHeaderColor),
                       ),
@@ -179,8 +178,8 @@ class ChatState extends State<ChatDialog> {
                     : _chatMessageBloc.add(
                         ChatMessageSendWs(
                           ChatMessage(
-                            fromUserId: authenticate?.user!.userId!,
-                            fromUserFullName: authenticate?.user!.fullName!,
+                            fromUserId: authenticate.user!.userId!,
+                            fromUserFullName: authenticate.user!.fullName!,
                             chatRoom: ChatRoom(
                               chatRoomId: widget.chatRoom.chatRoomId,
                               chatRoomName: widget.chatRoom.chatRoomName,

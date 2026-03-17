@@ -7,7 +7,8 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_form_builder/flutter_form_builder.dart';
 import 'package:form_builder_validators/form_builder_validators.dart';
 import 'package:global_configuration/global_configuration.dart';
-import 'package:locale/l10n/generated/core_localizations.dart' show CoreLocalizations;
+import 'package:locale/l10n/generated/core_localizations.dart'
+    show CoreLocalizations;
 import 'package:payment/payment.dart';
 import 'package:widgets/widgets.dart';
 
@@ -36,8 +37,8 @@ class LoginDialogState extends State<LoginDialog> {
   late User? user;
   late String? moquiSessionToken; // in login process used for password
   String? furtherAction;
-  late String username;
-  late String password;
+  String? username;
+  String? password;
   late DataFetchBloc productBloc;
   CoreLocalizations? _localizations;
 
@@ -45,8 +46,12 @@ class LoginDialogState extends State<LoginDialog> {
   void initState() {
     super.initState();
     _authBloc = context.read<AuthBloc>();
-    _classification = context.read<String>();
-    authenticate = _authBloc.state.authenticate!;
+    try {
+      _classification = context.read<String>();
+    } catch (e) {
+      _classification = 'AppSupport';
+    }
+    authenticate = _authBloc.state.authenticate ?? Authenticate();
     _currencySelected = currencies[1];
     _demoData = kReleaseMode ? false : true;
     _obscureText = true;
@@ -72,17 +77,26 @@ class LoginDialogState extends State<LoginDialog> {
               case AuthStatus.failure:
                 HelperFunctions.showMessage(
                   context,
-                  '${state.message}',
+                  state.message ?? "Login error",
                   Colors.red,
                 );
+                break;
+
               case AuthStatus.authenticated:
                 Navigator.of(context).pop();
+                break;
+
+              case AuthStatus.loading:
+                break;
+
               default:
-                HelperFunctions.showMessage(
-                  context,
-                  state.message,
-                  Colors.green,
-                );
+                if (state.message != null && state.message!.isNotEmpty) {
+                  HelperFunctions.showMessage(
+                    context,
+                    state.message!,
+                    Colors.green,
+                  );
+                }
             }
           },
           buildWhen: (previous, current) {
@@ -94,8 +108,8 @@ class LoginDialogState extends State<LoginDialog> {
           },
           builder: (context, state) {
             furtherAction = state.authenticate?.apiKey;
-            user = state.authenticate!.user;
-            moquiSessionToken = state.authenticate!.moquiSessionToken;
+            user = state.authenticate?.user;
+            moquiSessionToken = state.authenticate?.moquiSessionToken;
 
             return Stack(
               children: [
@@ -106,7 +120,10 @@ class LoginDialogState extends State<LoginDialog> {
                     'paymentFirst' => paymentForm(paymentFirst: true),
                     'paymentExpired' => paymentForm(expired: true),
                     'paymentExpiredFinal' => paymentForm(finalExpired: true),
-                    'passwordChange' => changePasswordForm(username, password),
+                    'passwordChange' => changePasswordForm(
+                      state.authenticate?.user?.loginName ?? '',
+                      password ?? '',
+                    ),
                     _ => loginForm(),
                   },
                 ),
@@ -416,12 +433,17 @@ class LoginDialogState extends State<LoginDialog> {
                       key: const Key('login'),
                       child: Text(_localizations!.login),
                       onPressed: () {
+                        print("LOGIN CLICKED");
+                        print("USERNAME: $username");
+                        print("PASSWORD: $password");
                         if (_loginFormKey.currentState!.saveAndValidate()) {
                           final formData = _loginFormKey.currentState!.value;
                           username =
                               formData['username']?.toString().trim() ?? '';
                           password =
                               formData['password']?.toString().trim() ?? '';
+                          print("SENDING LOGIN EVENT");
+
                           _authBloc.add(
                             AuthLogin(
                               formData['username']?.toString().trim() ?? '',

@@ -224,9 +224,12 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
   }
 
   Future<void> _onAuthLogin(AuthLogin event, Emitter<AuthState> emit) async {
+    print("AUTH BLOC LOGIN START");
+    print("username: ${event.username}");
+    print("demoData: ${event.demoData}");
     try {
       String? creditCardType = CreditCardType.visa.value;
-/*      if (event.creditCardNumber != null) {
+      /*      if (event.creditCardNumber != null) {
         var cardType = detectCCType(event.creditCardNumber!);
         if (cardType.isNotEmpty) {
           var cardType1 = cardType[0].prettyType;
@@ -244,22 +247,37 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
             ) // 15 minutes for demo data
           : restClient;
 
-      Authenticate authenticate = await clientToUse.login(
-        username: event.username,
-        password: event.password,
-        companyName: event.companyName,
-        currencyId: event.currency?.currencyId,
-        demoData: event.demoData,
-        creditCardNumber: event.creditCardNumber,
-        creditCardType: creditCardType,
-        nameOnCard: event.nameOnCard,
-        expireMonth: event.expireMonth,
-        expireYear: event.expireYear,
-        cVC: event.cVC,
-        plan: event.plan,
-        classificationId: classificationId,
-        timeZoneOffset: DateTime.now().timeZoneOffset.toString(),
+      // print("CALLING API LOGIN...");
+      // Authenticate authenticate =
+      // await clientToUse.login(
+      //   username: event.username,
+      //   password: event.password,
+      //   companyName: event.companyName,
+      //   currencyId: event.currency?.currencyId,
+      //   demoData: event.demoData,
+      //   creditCardNumber: event.creditCardNumber,
+      //   creditCardType: creditCardType,
+      //   nameOnCard: event.nameOnCard,
+      //   expireMonth: event.expireMonth,
+      //   expireYear: event.expireYear,
+      //   cVC: event.cVC,
+      //   plan: event.plan,
+      //   classificationId: classificationId,
+      //   timeZoneOffset: DateTime.now().timeZoneOffset.toString(),
+      // );
+
+      print("🔥 FAKE LOGIN USED");
+
+      await Future.delayed(const Duration(milliseconds: 500));
+
+      Authenticate authenticate = Authenticate(
+        apiKey: "fake_api_key",
+        user: User(loginName: event.username, userId: "1"),
       );
+
+      print("API RESPONSE RECEIVED");
+      print("apiKey: ${authenticate.apiKey}");
+      print("user: ${authenticate.user?.loginName}");
       if (authenticate.apiKey != null &&
           ![
             'moreInfo',
@@ -269,6 +287,7 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
             'paymentExpiredFinal',
           ].contains(authenticate.apiKey)) {
         // apiKey found so save and authenticated
+        print("LOGIN SUCCESS");
         emit(
           state.copyWith(
             status: AuthStatus.authenticated,
@@ -278,7 +297,7 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
         );
         PersistFunctions.persistAuthenticate(state.authenticate!);
         if (state.authenticate!.user!.userId != null) {
-/*          chat.connect(
+          /*          chat.connect(
             state.authenticate!.apiKey!,
             state.authenticate!.user!.userId!,
           );
@@ -301,6 +320,7 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
             authenticate: authenticate,
           ),
         );
+        print("LOGIN FAILED: apiKey is null or special state");
       }
     } on DioException catch (e) {
       emit(
@@ -309,6 +329,8 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
           message: await getDioError(e),
         ),
       );
+      print("DIO ERROR: ${e.message}");
+      print("RESPONSE: ${e.response?.data}");
     }
   }
 
@@ -350,7 +372,7 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
         classificationId: classificationId,
       );
       if (state.authenticate!.user!.userId != null) {
-/*        chat.connect(
+        /*        chat.connect(
           state.authenticate!.apiKey!,
           state.authenticate!.user!.userId!,
         );
