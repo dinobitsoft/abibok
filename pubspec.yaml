@@ -38,6 +38,26 @@ dependencies:
   # Use with the CupertinoIcons class for iOS style icons.
   cupertino_icons: ^1.0.8
 
+  # Local modules
+  core:
+    path: modules/core
+  auth:
+    path: modules/auth
+  chat:
+    path: modules/chat
+  locale:
+    path: modules/locale
+  widgets:
+    path: modules/widgets
+  payment:
+    path: modules/payment
+
+  # Other dependencies
+  flutter_bloc: ^8.1.4
+  responsive_framework: ^1.4.0
+  dio: ^5.4.3
+  provider: ^6.0.0
+
 dev_dependencies:
   retrofit_generator: ^10.0.1
   json_serializable: ^6.8.0
