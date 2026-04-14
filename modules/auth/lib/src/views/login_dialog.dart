@@ -7,7 +7,8 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_form_builder/flutter_form_builder.dart';
 import 'package:form_builder_validators/form_builder_validators.dart';
 import 'package:global_configuration/global_configuration.dart';
-import 'package:locale/l10n/generated/core_localizations.dart' show CoreLocalizations;
+import 'package:locale/l10n/generated/core_localizations.dart'
+    show CoreLocalizations;
 import 'package:payment/payment.dart';
 import 'package:widgets/widgets.dart';
 
@@ -32,7 +33,6 @@ class LoginDialogState extends State<LoginDialog> {
   late AuthBloc _authBloc;
   late Currency _currencySelected;
   late bool _demoData;
-  late String _classification;
   late User? user;
   late String? moquiSessionToken; // in login process used for password
   String? furtherAction;
@@ -44,20 +44,23 @@ class LoginDialogState extends State<LoginDialog> {
   @override
   void initState() {
     super.initState();
+
     _authBloc = context.read<AuthBloc>();
-    _classification = context.read<String>();
-    authenticate = _authBloc.state.authenticate!;
+    authenticate =
+        _authBloc.state.authenticate ??
+        Authenticate(classificationId: 'AppSupport');
     _currencySelected = currencies[1];
     _demoData = kReleaseMode ? false : true;
     _obscureText = true;
     _obscureText3 = true;
     _obscureText4 = true;
-    productBloc = context.read<DataFetchBloc<ABKServices>>()
-      ..add(
-        GetDataEvent(
-          () => context.read<AuthRestClient>().getProduct(ownerPartyId: 'ABK'),
-        ),
-      );
+    // ❌ Закомментировано - не делает запрос к бекенду при старте
+    // productBloc = context.read<DataFetchBloc<ABKServices>>()
+    //   ..add(
+    //     GetDataEvent(
+    //       () => context.read<AuthRestClient>().getProduct(ownerPartyId: 'ABK'),
+    //     ),
+    //   );
   }
 
   @override
@@ -72,17 +75,19 @@ class LoginDialogState extends State<LoginDialog> {
               case AuthStatus.failure:
                 HelperFunctions.showMessage(
                   context,
-                  '${state.message}',
+                  state.message ?? 'Unknown error',
                   Colors.red,
                 );
               case AuthStatus.authenticated:
                 Navigator.of(context).pop();
               default:
-                HelperFunctions.showMessage(
-                  context,
-                  state.message,
-                  Colors.green,
-                );
+                if (state.message != null && state.message!.isNotEmpty) {
+                  HelperFunctions.showMessage(
+                    context,
+                    state.message!,
+                    Colors.green,
+                  );
+                }
             }
           },
           buildWhen: (previous, current) {
@@ -94,8 +99,8 @@ class LoginDialogState extends State<LoginDialog> {
           },
           builder: (context, state) {
             furtherAction = state.authenticate?.apiKey;
-            user = state.authenticate!.user;
-            moquiSessionToken = state.authenticate!.moquiSessionToken;
+            user = state.authenticate?.user;
+            moquiSessionToken = state.authenticate?.moquiSessionToken;
 
             return Stack(
               children: [
@@ -342,16 +347,17 @@ class LoginDialogState extends State<LoginDialog> {
   }
 
   Widget loginForm() {
+    const classificationId = 'AppSupport';
     String defaultUsername =
         authenticate.user?.loginName ??
         (kReleaseMode
             ? ''
-            : _classification == 'AppSupport'
+            : classificationId == 'AppSupport'
             ? 'SystemSupport'
             : 'test@example.com');
     String defaultPassword = kReleaseMode
         ? ''
-        : _classification == 'AppSupport'
+        : classificationId == 'AppSupport'
         ? 'moqui'
         : 'qqqqqq9!';
 

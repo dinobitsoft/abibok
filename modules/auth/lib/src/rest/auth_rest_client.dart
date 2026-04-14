@@ -96,10 +96,6 @@ abstract class AuthRestClient {
     @Field() required bool deleteCompanyToo,
   });
 
-
-
-
-
   @GET("rest/s1/abk/100/Companies")
   @Extra({'noApiKey': true})
   Future<Companies> getCompanies({
@@ -129,6 +125,4 @@ abstract class AuthRestClient {
     @Query('limit') int? limit,
     @Query('classificationId') String? classificationId,
   });
-
-
 }

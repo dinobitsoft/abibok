@@ -226,7 +226,7 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
   Future<void> _onAuthLogin(AuthLogin event, Emitter<AuthState> emit) async {
     try {
       String? creditCardType = CreditCardType.visa.value;
-/*      if (event.creditCardNumber != null) {
+      /*      if (event.creditCardNumber != null) {
         var cardType = detectCCType(event.creditCardNumber!);
         if (cardType.isNotEmpty) {
           var cardType1 = cardType[0].prettyType;
@@ -244,22 +244,38 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
             ) // 15 minutes for demo data
           : restClient;
 
-      Authenticate authenticate = await clientToUse.login(
-        username: event.username,
-        password: event.password,
-        companyName: event.companyName,
-        currencyId: event.currency?.currencyId,
-        demoData: event.demoData,
-        creditCardNumber: event.creditCardNumber,
-        creditCardType: creditCardType,
-        nameOnCard: event.nameOnCard,
-        expireMonth: event.expireMonth,
-        expireYear: event.expireYear,
-        cVC: event.cVC,
-        plan: event.plan,
-        classificationId: classificationId,
-        timeZoneOffset: DateTime.now().timeZoneOffset.toString(),
+      // Authenticate authenticate = await clientToUse.login(
+      //   username: event.username,
+      //   password: event.password,
+      //   companyName: event.companyName,
+      //   currencyId: event.currency?.currencyId,
+      //   demoData: event.demoData,
+      //   creditCardNumber: event.creditCardNumber,
+      //   creditCardType: creditCardType,
+      //   nameOnCard: event.nameOnCard,
+      //   expireMonth: event.expireMonth,
+      //   expireYear: event.expireYear,
+      //   cVC: event.cVC,
+      //   plan: event.plan,
+      //   classificationId: classificationId,
+      //   timeZoneOffset: DateTime.now().timeZoneOffset.toString(),
+      // );
+
+      await Future.delayed(const Duration(milliseconds: 500));
+
+      // Демо-пользователь для работы без бекенда
+      Authenticate authenticate = Authenticate(
+        apiKey: "fake_api_key",
+        user: User(
+          loginName: event.username,
+          userId: "1",
+          fullName: event.username,
+          firstName: event.username,
+          lastName: "",
+          userGroup: UserGroup.admin,
+        ),
       );
+
       if (authenticate.apiKey != null &&
           ![
             'moreInfo',
@@ -278,7 +294,7 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
         );
         PersistFunctions.persistAuthenticate(state.authenticate!);
         if (state.authenticate!.user!.userId != null) {
-/*          chat.connect(
+          /*          chat.connect(
             state.authenticate!.apiKey!,
             state.authenticate!.user!.userId!,
           );
@@ -350,7 +366,7 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
         classificationId: classificationId,
       );
       if (state.authenticate!.user!.userId != null) {
-/*        chat.connect(
+        /*        chat.connect(
           state.authenticate!.apiKey!,
           state.authenticate!.user!.userId!,
         );

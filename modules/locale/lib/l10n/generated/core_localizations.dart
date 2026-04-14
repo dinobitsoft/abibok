@@ -66,8 +66,7 @@ import 'core_localizations_zh.dart';
 /// be consistent with the languages listed in the CoreLocalizations.supportedLocales
 /// property.
 abstract class CoreLocalizations {
-  CoreLocalizations(String locale)
-    : localeName = intl.Intl.canonicalizedLocale(locale.toString());
+  CoreLocalizations(String locale) : localeName = intl.Intl.canonicalizedLocale(locale.toString());
 
   final String localeName;
 
@@ -75,8 +74,7 @@ abstract class CoreLocalizations {
     return Localizations.of<CoreLocalizations>(context, CoreLocalizations);
   }
 
-  static const LocalizationsDelegate<CoreLocalizations> delegate =
-      _CoreLocalizationsDelegate();
+  static const LocalizationsDelegate<CoreLocalizations> delegate = _CoreLocalizationsDelegate();
 
   /// A list of this localizations delegate along with the default localizations
   /// delegates.
@@ -88,22 +86,21 @@ abstract class CoreLocalizations {
   /// Additional delegates can be added by appending to this list in
   /// MaterialApp. This list does not have to be used at all if a custom list
   /// of delegates is preferred or required.
-  static const List<LocalizationsDelegate<dynamic>> localizationsDelegates =
-      <LocalizationsDelegate<dynamic>>[
-        delegate,
-        GlobalMaterialLocalizations.delegate,
-        GlobalCupertinoLocalizations.delegate,
-        GlobalWidgetsLocalizations.delegate,
-      ];
+  static const List<LocalizationsDelegate<dynamic>> localizationsDelegates = <LocalizationsDelegate<dynamic>>[
+    delegate,
+    GlobalMaterialLocalizations.delegate,
+    GlobalCupertinoLocalizations.delegate,
+    GlobalWidgetsLocalizations.delegate,
+  ];
 
   /// A list of this localizations delegate's supported locales.
   static const List<Locale> supportedLocales = <Locale>[
-    Locale('en'),
-    Locale('th'),
-    Locale('zh'),
     Locale('de'),
+    Locale('en'),
     Locale('fr'),
     Locale('nl'),
+    Locale('th'),
+    Locale('zh')
   ];
 
   /// About app dialog title
@@ -1553,52 +1550,38 @@ abstract class CoreLocalizations {
   String get chatMessageFetchFailure;
 }
 
-class _CoreLocalizationsDelegate
-    extends LocalizationsDelegate<CoreLocalizations> {
+class _CoreLocalizationsDelegate extends LocalizationsDelegate<CoreLocalizations> {
   const _CoreLocalizationsDelegate();
 
   @override
   Future<CoreLocalizations> load(Locale locale) {
-    return SynchronousFuture<CoreLocalizations>(
-      lookupCoreLocalizations(locale),
-    );
+    return SynchronousFuture<CoreLocalizations>(lookupCoreLocalizations(locale));
   }
 
   @override
-  bool isSupported(Locale locale) => <String>[
-    'de',
-    'en',
-    'fr',
-    'nl',
-    'th',
-    'zh',
-  ].contains(locale.languageCode);
+  bool isSupported(Locale locale) => <String>['de', 'en', 'fr', 'nl', 'th', 'zh'].contains(locale.languageCode);
 
   @override
   bool shouldReload(_CoreLocalizationsDelegate old) => false;
 }
 
 CoreLocalizations lookupCoreLocalizations(Locale locale) {
+
+
   // Lookup logic when only language code is specified.
   switch (locale.languageCode) {
-    case 'de':
-      return CoreLocalizationsDe();
-    case 'en':
-      return CoreLocalizationsEn();
-    case 'fr':
-      return CoreLocalizationsFr();
-    case 'nl':
-      return CoreLocalizationsNl();
-    case 'th':
-      return CoreLocalizationsTh();
-    case 'zh':
-      return CoreLocalizationsZh();
+    case 'de': return CoreLocalizationsDe();
+    case 'en': return CoreLocalizationsEn();
+    case 'fr': return CoreLocalizationsFr();
+    case 'nl': return CoreLocalizationsNl();
+    case 'th': return CoreLocalizationsTh();
+    case 'zh': return CoreLocalizationsZh();
   }
 
   throw FlutterError(
     'CoreLocalizations.delegate failed to load unsupported locale "$locale". This is likely '
     'an issue with the localizations generation tool. Please file an issue '
     'on GitHub with a reproducible sample app and the gen-l10n configuration '
-    'that was used.',
+    'that was used.'
   );
 }

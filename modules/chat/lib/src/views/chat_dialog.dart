@@ -41,7 +41,7 @@ class ChatState extends State<ChatDialog> {
       ..add(
         ChatMessageFetch(
           chatRoomId: widget.chatRoom.chatRoomId,
-          chatRoomName: widget.chatRoom.chatRoomName!,
+          chatRoomName: widget.chatRoom.chatRoomName ?? '',
           limit: limit,
         ),
       );
@@ -62,7 +62,9 @@ class ChatState extends State<ChatDialog> {
     return BlocBuilder<AuthBloc, AuthState>(
       builder: (context, state) {
         if (state.status == AuthStatus.authenticated) {
-          authenticate = state.authenticate!;
+          authenticate =
+              state.authenticate ??
+              Authenticate(classificationId: 'AppSupport');
         }
         return BlocConsumer<ChatMessageBloc, ChatMessageState>(
           listener: ((context, state) {
@@ -127,7 +129,7 @@ class ChatState extends State<ChatDialog> {
                   ),
                   child: Align(
                     alignment:
-                        (messages[index].fromUserId == authenticate.user!.userId
+                        (messages[index].fromUserId == authenticate.user?.userId
                         ? Alignment.topRight
                         : Alignment.topLeft),
                     child: Container(
@@ -135,7 +137,7 @@ class ChatState extends State<ChatDialog> {
                         borderRadius: BorderRadius.circular(20),
                         color:
                             (messages[index].fromUserId ==
-                                authenticate.user!.userId
+                                authenticate.user?.userId
                             ? theme.primaryColor
                             : theme.secondaryHeaderColor),
                       ),
@@ -169,21 +171,21 @@ class ChatState extends State<ChatDialog> {
               key: const Key('send'),
               child: Text(_localizations?.send ?? 'Send'),
               onPressed: () {
-                messageController.text.isEmpty
-                    ? null
-                    : _chatMessageBloc.add(
-                        ChatMessageSendWs(
-                          ChatMessage(
-                            fromUserId: authenticate.user!.userId!,
-                            fromUserFullName: authenticate.user!.fullName!,
-                            chatRoom: ChatRoom(
-                              chatRoomId: widget.chatRoom.chatRoomId,
-                              chatRoomName: widget.chatRoom.chatRoomName,
-                            ),
-                            content: messageController.text,
-                          ),
-                        ),
-                      );
+                if (messageController.text.isEmpty) return;
+
+                _chatMessageBloc.add(
+                  ChatMessageSendWs(
+                    ChatMessage(
+                      fromUserId: authenticate.user?.userId ?? '1',
+                      fromUserFullName: authenticate.user?.fullName ?? 'User',
+                      chatRoom: ChatRoom(
+                        chatRoomId: widget.chatRoom.chatRoomId,
+                        chatRoomName: widget.chatRoom.chatRoomName,
+                      ),
+                      content: messageController.text,
+                    ),
+                  ),
+                );
                 messageController.text = '';
                 Timer(
                   const Duration(seconds: 1),
@@ -204,7 +206,7 @@ class ChatState extends State<ChatDialog> {
       _chatMessageBloc.add(
         ChatMessageFetch(
           chatRoomId: widget.chatRoom.chatRoomId,
-          chatRoomName: widget.chatRoom.chatRoomName!,
+          chatRoomName: widget.chatRoom.chatRoomName ?? '',
           limit: limit,
           searchString: searchString ?? '',
         ),
