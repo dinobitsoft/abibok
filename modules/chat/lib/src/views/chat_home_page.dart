@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:auth/auth.dart';
+import 'package:chat/src/widgets/chat_message_bubble.dart'; // Импорт нового виджета
+import 'package:flutter_lorem/flutter_lorem.dart';
 
 /// Главный экран чата с демо-сообщениями
 class ChatHomePage extends StatefulWidget {
@@ -28,13 +30,15 @@ class _ChatHomePageState extends State<ChatHomePage> {
           _DemoChatMessage(text: text, isMe: true, time: DateTime.now()),
         );
 
-        // Авто-ответ
+        // Генерация ответа с использованием lorem
         Future.delayed(const Duration(seconds: 1), () {
           if (mounted) {
             setState(() {
+              // Генерируем случайный текст с помощью flutter_lorem
+              String loremResponse = lorem(paragraphs: 1, words: 10);
               _messages.add(
                 _DemoChatMessage(
-                  text: 'Авто-ответ: "$text"',
+                  text: loremResponse,
                   isMe: false,
                   time: DateTime.now(),
                 ),
@@ -46,6 +50,14 @@ class _ChatHomePageState extends State<ChatHomePage> {
         _messageController.clear();
       });
     }
+  }
+
+  void _onResultTap(int index) {
+    print('Результат нажат для сообщения ${_messages[index].text}');
+  }
+
+  void _onStopTap(int index) {
+    print('Стоп нажат для сообщения ${_messages[index].text}');
   }
 
   @override
@@ -70,41 +82,16 @@ class _ChatHomePageState extends State<ChatHomePage> {
               itemCount: _messages.length,
               itemBuilder: (context, index) {
                 final message = _messages[index];
-                return Align(
+                return Container(
                   alignment: message.isMe
                       ? Alignment.centerRight
                       : Alignment.centerLeft,
-                  child: Container(
-                    margin: const EdgeInsets.symmetric(vertical: 4),
-                    padding: const EdgeInsets.all(12),
-                    constraints: BoxConstraints(
-                      maxWidth: MediaQuery.of(context).size.width * 0.7,
-                    ),
-                    decoration: BoxDecoration(
-                      color: message.isMe ? Colors.blue : Colors.grey[300],
-                      borderRadius: BorderRadius.circular(16),
-                    ),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          message.text,
-                          style: TextStyle(
-                            color: message.isMe ? Colors.white : Colors.black87,
-                          ),
-                        ),
-                        const SizedBox(height: 4),
-                        Text(
-                          '${message.time.hour.toString().padLeft(2, '0')}:${message.time.minute.toString().padLeft(2, '0')}',
-                          style: TextStyle(
-                            fontSize: 10,
-                            color: message.isMe
-                                ? Colors.white70
-                                : Colors.black54,
-                          ),
-                        ),
-                      ],
-                    ),
+                  child: ChatMessageBubble(
+                    message: message.text,
+                    isMe: message.isMe,
+                    time: message.time,
+                    onResultTap: () => _onResultTap(index),
+                    onStopTap: () => _onStopTap(index),
                   ),
                 );
               },

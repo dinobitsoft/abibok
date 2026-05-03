@@ -24,6 +24,7 @@ class AppProviders extends StatelessWidget {
         FutureProvider<Dio>(
           create: (_) => buildDioClient(),
           initialData: Dio(),
+          catchError: (_, __) => Dio(),
         ),
         Provider<AuthRestClient>(
           create: (context) => AuthRestClient(context.read<Dio>()),

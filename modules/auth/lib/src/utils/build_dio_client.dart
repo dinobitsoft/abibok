@@ -19,8 +19,8 @@ Future<Dio> buildDioClient({
     // ignore: empty_catches
   } catch (e) {}
 
-  String databaseUrl = GlobalConfiguration().get('databaseUrl');
-  String databaseUrlDebug = GlobalConfiguration().get('databaseUrlDebug');
+  String databaseUrl = GlobalConfiguration().get('databaseUrl') ?? '';
+  String databaseUrlDebug = GlobalConfiguration().get('databaseUrlDebug') ?? '';
 
   // Get timeout values from configuration
   int connectTimeoutSeconds;

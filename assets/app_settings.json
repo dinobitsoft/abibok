@@ -1,0 +1,11 @@
+{
+  "databaseUrl": "",
+  "databaseUrlDebug": "http://10.0.2.2:8080",
+  "classificationId": "AppSupport",
+  "connectTimeoutTest": 20,
+  "receiveTimeoutTest": 120,
+  "connectTimeoutProd": 15,
+  "receiveTimeoutProd": 60,
+  "test": true,
+  "testMode": true
+}
