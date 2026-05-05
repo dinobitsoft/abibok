@@ -3,6 +3,8 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:auth/auth.dart';
 import 'package:chat/src/widgets/chat_message_bubble.dart'; // Импорт нового виджета
 import 'package:flutter_lorem/flutter_lorem.dart';
+import 'dart:convert';
+import 'package:shared_preferences/shared_preferences.dart';
 
 /// Главный экран чата с демо-сообщениями
 class ChatHomePage extends StatefulWidget {
@@ -15,10 +17,18 @@ class ChatHomePage extends StatefulWidget {
 class _ChatHomePageState extends State<ChatHomePage> {
   final _messageController = TextEditingController();
   final List<_DemoChatMessage> _messages = [];
+  final ScrollController _scrollController = ScrollController();
+  
+  @override
+  void initState() {
+    super.initState();
+    _loadMessages();
+  }
 
   @override
   void dispose() {
     _messageController.dispose();
+    _scrollController.dispose();
     super.dispose();
   }
 
@@ -43,13 +53,55 @@ class _ChatHomePageState extends State<ChatHomePage> {
                   time: DateTime.now(),
                 ),
               );
+              _saveMessages();
+            });
+            
+            // Прокручиваем к новому сообщению после небольшой задержки
+            WidgetsBinding.instance.addPostFrameCallback((_) {
+              _scrollToBottom();
             });
           }
         });
 
         _messageController.clear();
+        _scrollToBottom();
       });
     }
+  }
+
+  void _scrollToBottom() {
+    if (_scrollController.hasClients) {
+      _scrollController.animateTo(
+        _scrollController.position.maxScrollExtent,
+        duration: const Duration(milliseconds: 300),
+        curve: Curves.easeOut,
+      );
+    }
+  }
+
+  Future<void> _loadMessages() async {
+    final prefs = await SharedPreferences.getInstance();
+    final messagesJson = prefs.getStringList('chat_messages') ?? [];
+
+    setState(() {
+      _messages.clear();
+      for (final jsonString in messagesJson) {
+        _messages.add(_DemoChatMessage.fromJson(jsonString));
+      }
+    });
+
+    // Прокрутка к последнему сообщению после загрузки
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (_messages.isNotEmpty && _scrollController.hasClients) {
+        _scrollToBottom();
+      }
+    });
+  }
+
+  Future<void> _saveMessages() async {
+    final prefs = await SharedPreferences.getInstance();
+    final messagesJson = _messages.map((msg) => msg.toJson()).toList();
+    await prefs.setStringList('chat_messages', messagesJson);
   }
 
   void _onResultTap(int index) {
@@ -78,14 +130,13 @@ class _ChatHomePageState extends State<ChatHomePage> {
         children: [
           Expanded(
             child: ListView.builder(
+              controller: _scrollController,
               padding: const EdgeInsets.all(16),
               itemCount: _messages.length,
               itemBuilder: (context, index) {
                 final message = _messages[index];
                 return Container(
-                  alignment: message.isMe
-                      ? Alignment.centerRight
-                      : Alignment.centerLeft,
+                  alignment: message.isMe ? Alignment.centerRight : Alignment.centerLeft,
                   child: ChatMessageBubble(
                     message: message.text,
                     isMe: message.isMe,
@@ -152,4 +203,22 @@ class _DemoChatMessage {
     required this.isMe,
     required this.time,
   });
+
+  String toJson() {
+    final Map<String, dynamic> map = {
+      'text': text,
+      'isMe': isMe,
+      'time': time.millisecondsSinceEpoch,
+    };
+    return jsonEncode(map);
+  }
+
+  factory _DemoChatMessage.fromJson(String jsonString) {
+    final Map<String, dynamic> map = jsonDecode(jsonString);
+    return _DemoChatMessage(
+      text: map['text'],
+      isMe: map['isMe'],
+      time: DateTime.fromMillisecondsSinceEpoch(map['time']),
+    );
+  }
 }

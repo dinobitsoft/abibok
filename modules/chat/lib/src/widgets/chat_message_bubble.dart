@@ -18,73 +18,104 @@ class ChatMessageBubble extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      margin: const EdgeInsets.symmetric(vertical: 8, horizontal: 16),
-      child: Stack(
+    final bgColor = isMe ? Colors.lightGreen[100] : Colors.lightBlue[100];
+
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 4, horizontal: 12),
+      child: Row(
+        mainAxisAlignment: isMe
+            ? MainAxisAlignment.end
+            : MainAxisAlignment.start,
         children: [
-          // Основной контейнер сообщения
           Container(
-            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+            padding: const EdgeInsets.fromLTRB(12, 8, 12, 6),
             constraints: BoxConstraints(
               maxWidth: MediaQuery.of(context).size.width * 0.7,
             ),
             decoration: BoxDecoration(
-              color: isMe ? Colors.green[100] : Colors.blue[100],
+              color: bgColor,
               borderRadius: BorderRadius.only(
                 topLeft: const Radius.circular(16),
                 topRight: const Radius.circular(16),
-                bottomLeft: isMe ? const Radius.circular(16) : Radius.zero,
-                bottomRight: isMe ? Radius.zero : const Radius.circular(16),
+                bottomLeft: isMe
+                    ? const Radius.circular(16)
+                    : const Radius.circular(4),
+                bottomRight: isMe
+                    ? const Radius.circular(4)
+                    : const Radius.circular(16),
               ),
             ),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceAround,
                   crossAxisAlignment: CrossAxisAlignment.start,
+                  mainAxisSize: MainAxisSize.min,
                   children: [
                     Expanded(
                       child: Text(
                         message,
-                        style: TextStyle(
-                          color: isMe ? Colors.black : Colors.black,
-                        ),
+                        style: const TextStyle(color: Colors.black),
                       ),
                     ),
-                    IconButton(
-                      icon: Container(
-                        width: 24,
-                        height: 24,
-                        decoration: BoxDecoration(
-                          shape: BoxShape.circle,
-                          color: Colors.red,
+
+                    if (onStopTap != null)
+                      Padding(
+                        padding: const EdgeInsets.only(left: 6, top: 2),
+                        child: GestureDetector(
+                          onTap: onStopTap,
+                          child: Container(
+                            padding: const EdgeInsets.all(4),
+                            decoration: const BoxDecoration(
+                              color: Colors.red,
+                              shape: BoxShape.circle,
+                            ),
+                            child: const Icon(
+                              Icons.stop,
+                              size: 14,
+                              color: Colors.white,
+                            ),
+                          ),
                         ),
-                        child: Icon(Icons.stop, color: Colors.white, size: 16),
                       ),
-                      onPressed: onStopTap,
-                    ),
                   ],
                 ),
-                const SizedBox(height: 4),
-                Text(
-                  '${time.hour.toString().padLeft(2, '0')}:${time.minute.toString().padLeft(2, '0')}',
-                  style: TextStyle(
-                    fontSize: 10,
-                    color: isMe ? Colors.black54 : Colors.black54,
+
+                if (onResultTap != null)
+                  Padding(
+                    padding: const EdgeInsets.only(top: 4),
+                    child: GestureDetector(
+                      onTap: onResultTap,
+                      child: const Text(
+                        'Результат',
+                        style: TextStyle(color: Colors.blue, fontSize: 12),
+                      ),
+                    ),
+                  ),
+
+                Align(
+                  alignment: Alignment.bottomRight,
+                  child: Padding(
+                    padding: const EdgeInsets.only(top: 4),
+                    child: Text(
+                      _formatTime(time),
+                      style: const TextStyle(
+                        fontSize: 10,
+                        color: Colors.black54,
+                      ),
+                    ),
                   ),
                 ),
-                if (onResultTap != null) ...[
-                  TextButton(
-                    onPressed: onResultTap,
-                    child: const Text('Результат'),
-                  ),
-                ],
               ],
             ),
           ),
         ],
       ),
     );
+  }
+
+  String _formatTime(DateTime time) {
+    return '${time.hour.toString().padLeft(2, '0')}:'
+        '${time.minute.toString().padLeft(2, '0')}';
   }
 }
