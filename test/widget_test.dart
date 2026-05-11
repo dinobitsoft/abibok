@@ -8,10 +8,10 @@ import 'package:auth/auth.dart';
 
 import 'package:abibok/main.dart';
 
-// Mock для AuthBloc
+// Mock for AuthBloc
 class MockAuthBloc extends Mock implements AuthBloc {}
 
-// Fallback для mocktail
+// Fallback for mocktail
 class FakeAuthEvent extends Fake implements AuthEvent {}
 
 void main() {

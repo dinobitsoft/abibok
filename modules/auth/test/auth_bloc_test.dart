@@ -11,7 +11,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 class _MockAuthRestClient extends Mock implements AuthRestClient {}
 
-// ── Fallback для mocktail ──────────────────────────────────────────────────
+// ── Fallback for mocktail ──────────────────────────────────────────────────
 
 class _FakeAuthEvent extends Fake implements AuthEvent {}
 
