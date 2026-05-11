@@ -1,12 +1,13 @@
+import 'dart:convert';
+
+import 'package:auth/auth.dart';
+import 'package:chat/src/widgets/chat_message_bubble.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:auth/auth.dart';
-import 'package:chat/src/widgets/chat_message_bubble.dart'; // Импорт нового виджета
 import 'package:flutter_lorem/flutter_lorem.dart';
-import 'dart:convert';
 import 'package:shared_preferences/shared_preferences.dart';
 
-/// Главный экран чата с демо-сообщениями
+/// Chat home screen with demo messages
 class ChatHomePage extends StatefulWidget {
   const ChatHomePage({super.key});
 
@@ -15,10 +16,12 @@ class ChatHomePage extends StatefulWidget {
 }
 
 class _ChatHomePageState extends State<ChatHomePage> {
-  final _messageController = TextEditingController();
-  final List<_DemoChatMessage> _messages = [];
+  final TextEditingController _messageController = TextEditingController();
+
   final ScrollController _scrollController = ScrollController();
-  
+
+  final List<Message> _messages = [];
+
   @override
   void initState() {
     super.initState();
@@ -32,84 +35,85 @@ class _ChatHomePageState extends State<ChatHomePage> {
     super.dispose();
   }
 
-  void _sendMessage() {
+  Future<void> _sendMessage() async {
     final text = _messageController.text.trim();
-    if (text.isNotEmpty) {
-      setState(() {
-        _messages.add(
-          _DemoChatMessage(text: text, isMe: true, time: DateTime.now()),
-        );
 
-        // Генерация ответа с использованием lorem
-        Future.delayed(const Duration(seconds: 1), () {
-          if (mounted) {
-            setState(() {
-              // Генерируем случайный текст с помощью flutter_lorem
-              String loremResponse = lorem(paragraphs: 1, words: 10);
-              _messages.add(
-                _DemoChatMessage(
-                  text: loremResponse,
-                  isMe: false,
-                  time: DateTime.now(),
-                ),
-              );
-              _saveMessages();
-            });
-            
-            // Прокручиваем к новому сообщению после небольшой задержки
-            WidgetsBinding.instance.addPostFrameCallback((_) {
-              _scrollToBottom();
-            });
-          }
-        });
+    if (text.isEmpty) return;
 
-        _messageController.clear();
-        _scrollToBottom();
-      });
-    }
+    final userMessage = Message(text: text, isFromCurrentUser: true);
+
+    setState(() {
+      _messages.add(userMessage);
+    });
+
+    _messageController.clear();
+
+    await _saveMessages();
+    _scrollToBottom();
+
+    // Small delay to simulate bot typing
+    await Future.delayed(const Duration(seconds: 1));
+
+    final responseText = await generateAutoResponse();
+
+    if (!mounted) return;
+
+    final botMessage = Message(text: responseText, isFromCurrentUser: false);
+
+    setState(() {
+      _messages.add(botMessage);
+    });
+
+    await _saveMessages();
+    _scrollToBottom();
   }
 
   void _scrollToBottom() {
-    if (_scrollController.hasClients) {
+    if (!_scrollController.hasClients) return;
+
+    WidgetsBinding.instance.addPostFrameCallback((_) {
       _scrollController.animateTo(
         _scrollController.position.maxScrollExtent,
         duration: const Duration(milliseconds: 300),
         curve: Curves.easeOut,
       );
-    }
+    });
   }
 
   Future<void> _loadMessages() async {
     final prefs = await SharedPreferences.getInstance();
+
     final messagesJson = prefs.getStringList('chat_messages') ?? [];
 
+    final loadedMessages = messagesJson
+        .map((json) => Message.fromJson(json))
+        .toList();
+
+    if (!mounted) return;
+
     setState(() {
-      _messages.clear();
-      for (final jsonString in messagesJson) {
-        _messages.add(_DemoChatMessage.fromJson(jsonString));
-      }
+      _messages
+        ..clear()
+        ..addAll(loadedMessages);
     });
 
-    // Прокрутка к последнему сообщению после загрузки
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      if (_messages.isNotEmpty && _scrollController.hasClients) {
-        _scrollToBottom();
-      }
-    });
+    _scrollToBottom();
   }
 
   Future<void> _saveMessages() async {
     final prefs = await SharedPreferences.getInstance();
+
     final messagesJson = _messages.map((msg) => msg.toJson()).toList();
+
     await prefs.setStringList('chat_messages', messagesJson);
   }
 
   void _onResultTap(int index) {
-    print('Результат нажат для сообщения ${_messages[index].text}');
+    debugPrint('Result tapped for message: ${_messages[index].text}');
   }
 
   void _onStopTap(int index) {
-    print('Стоп нажат для сообщения ${_messages[index].text}');
+    debugPrint('Stop tapped for message: ${_messages[index].text}');
   }
 
   @override
@@ -135,11 +139,14 @@ class _ChatHomePageState extends State<ChatHomePage> {
               itemCount: _messages.length,
               itemBuilder: (context, index) {
                 final message = _messages[index];
+
                 return Container(
-                  alignment: message.isMe ? Alignment.centerRight : Alignment.centerLeft,
+                  alignment: message.isFromCurrentUser
+                      ? Alignment.centerRight
+                      : Alignment.centerLeft,
                   child: ChatMessageBubble(
                     message: message.text,
-                    isMe: message.isMe,
+                    isMe: message.isFromCurrentUser,
                     time: message.time,
                     onResultTap: () => _onResultTap(index),
                     onStopTap: () => _onStopTap(index),
@@ -193,32 +200,35 @@ class _ChatHomePageState extends State<ChatHomePage> {
   }
 }
 
-class _DemoChatMessage {
+class Message {
   final String text;
-  final bool isMe;
+  final bool isFromCurrentUser;
   final DateTime time;
 
-  _DemoChatMessage({
-    required this.text,
-    required this.isMe,
-    required this.time,
-  });
+  Message({required this.text, required this.isFromCurrentUser, DateTime? time})
+    : time = time ?? DateTime.now();
 
   String toJson() {
-    final Map<String, dynamic> map = {
+    final map = {
       'text': text,
-      'isMe': isMe,
+      'isFromCurrentUser': isFromCurrentUser,
       'time': time.millisecondsSinceEpoch,
     };
+
     return jsonEncode(map);
   }
 
-  factory _DemoChatMessage.fromJson(String jsonString) {
+  factory Message.fromJson(String jsonString) {
     final Map<String, dynamic> map = jsonDecode(jsonString);
-    return _DemoChatMessage(
-      text: map['text'],
-      isMe: map['isMe'],
-      time: DateTime.fromMillisecondsSinceEpoch(map['time']),
+
+    return Message(
+      text: map['text'] as String,
+      isFromCurrentUser: map['isFromCurrentUser'] as bool,
+      time: DateTime.fromMillisecondsSinceEpoch(map['time'] as int),
     );
   }
+}
+
+Future<String> generateAutoResponse() async {
+  return lorem(paragraphs: 1, words: 10);
 }

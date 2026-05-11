@@ -263,7 +263,7 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
 
       await Future.delayed(const Duration(milliseconds: 500));
 
-      // Демо-пользователь для работы без бекенда
+      // Demo user for working without backend
       Authenticate authenticate = Authenticate(
         apiKey: "fake_api_key",
         user: User(

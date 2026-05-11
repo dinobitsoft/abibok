@@ -3,8 +3,8 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import '../blocs/blocs.dart';
 import '../views/views.dart';
 
-/// Экран-шлюз: показывает загрузку, логин или чат в зависимости от статуса аутентификации.
-/// [chatPage] — виджет главного экрана (обычно из модуля chat).
+/// Gate screen: shows loading, login, or chat depending on authentication status.
+/// [chatPage] — main screen widget (usually from the chat module).
 class AuthGate extends StatelessWidget {
   final Widget chatPage;
 
